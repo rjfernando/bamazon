@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
 
+//creating a connection to database
 var connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
@@ -9,14 +10,14 @@ var connection = mysql.createConnection({
     database: "bamazon_db",
 });
 
+//getting connected to the database
 connection.connect(function (err) {
     if (err) {
         console.log(err);
-    }
-    // console.log("connected as id " + connection.threadId);
-    // startOrder();
+    }    
 });
 
+//start the order and list the items available for purchase
 function startOrder() {
     connection.query("SELECT * FROM products", function (err, res) {
         if (err) {
@@ -26,7 +27,7 @@ function startOrder() {
             console.log(res[i].id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + "| " + res[i].stock_quanity);
             console.log("------------------------------------------------------------");
         } 
-    
+        //prompts user to select ID of the item their looking to purchase
         inquirer.prompt([{
                 name: "item",
                 type: "input",
@@ -38,6 +39,7 @@ function startOrder() {
                     return false;
                 }
             },{
+                //How many units does the customer want of that item selected
                 name: "quanity",
                 type: "input",
                 message: "How many units would you like for this product?",
@@ -47,7 +49,7 @@ function startOrder() {
                     }
                     return false;
                 }
-
+        //goes through the item list and parses out the selected item by ID
         }]).then(function(answer){
             for (var i = 0; i < res.length; i++){
                 if (res[i].id === parseInt(answer.item))
@@ -57,6 +59,7 @@ function startOrder() {
     });
 }
 
+//checks to see if the item is in stock and updates the stock quanity and if not in stock it informs customer insufficient quanity
 function stock(id, quanity){
     connection.query("SELECT * FROM products WHERE ?", {id: id}, function(err,res){
         if (err){
@@ -73,12 +76,13 @@ function stock(id, quanity){
     });
 }
 
+// set a delay to list items again after customer is informed insufficient quanity 
 function delay() {
     setTimeout(function(){ 
         startOrder(); }, 4000);
 }
 
-
+//confirms cost of the item select by how many units selected
 function confirmCost(id, quanity) {
     connection.query("SELECT * FROM products WHERE ?", {id: id}, function(err, response) {
         if (err){
@@ -91,7 +95,7 @@ function confirmCost(id, quanity) {
         restart();
     });
 }
-
+// updates the stock quanity in the database as customer make their purhase
 function updateQuanity(id, quanity){
     connection.query("SELECT * FROM products WHERE ?", {id: id}, function(err, res){
         if (err){
@@ -111,6 +115,7 @@ function updateQuanity(id, quanity){
 });
 }
 
+//after selecting items and quanity it ask customers if they want to add more items if not then their order is placed
 function restart() {
     inquirer.prompt([{
         
@@ -131,6 +136,7 @@ function restart() {
         }
     });
 }
+
 startOrder();
 
 
