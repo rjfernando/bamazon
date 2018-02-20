@@ -63,11 +63,19 @@ function stock(id, quanity){
             console.log(err);
         }
         if (res[0].stock_quanity <= 0){
-            console.log("Insufficient quanity!");
+            console.log("*******Insufficient Quanity!**********");
+            console.log("PLEASE CHOOSE ANOTHER ITEM");
+            delay();
         } else {
             updateQuanity(id, quanity);
+            
         }
     });
+}
+
+function delay() {
+    setTimeout(function(){ 
+        startOrder(); }, 4000);
 }
 
 
@@ -105,13 +113,16 @@ function updateQuanity(id, quanity){
 
 function restart() {
     inquirer.prompt([{
+        
         type: "confirm",
         message: "Add more items?",
         name: "confirm",
         default: true
+    
     }]).then(function(answer) {
         if (answer.confirm === false){
-            console.log("YOUR ORDER WAS PLACED! THANK YOU!");
+            console.log("*********YOUR ORDER HAS BEEN PLACED!**********");
+            console.log("----------------------------------------------");
         }
         if (answer.confirm === true){
             startOrder();  
