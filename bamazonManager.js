@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-// var table = require('cli-table');
+var Table = require("cli-table");
+
 //creating a connection to database
 var connection = mysql.createConnection({
     host: "localhost",
@@ -9,7 +10,7 @@ var connection = mysql.createConnection({
     password: "Music6247",
     database: "bamazon_db",
 });
-
+//making a connection to the database
 connection.connect(function (err) {
     if (err) {
         console.log(err);
@@ -17,6 +18,12 @@ connection.connect(function (err) {
    runSearch();  
 });
 
+//cli-table for product list
+var table = new Table({
+    head: ["Id", "Product", "Department", "Price", "Stock Quantity"],
+});
+
+//prompts the manager what they want to do and they can select from 4 different options
 function runSearch(){
     inquirer.prompt({
         name: "action",
@@ -48,22 +55,26 @@ function runSearch(){
         }
     });
 }
-
+// view the whole inventory
 function viewProducts(){
     connection.query("SELECT * FROM products", function (err, res) {
         if (err) {
             console.log(err);
         }
         for (var i = 0; i < res.length; i++) {
-            console.log(res[i].id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + "| " + res[i].stock_quanity);
-            console.log("------------------------------------------------------------");
-        } 
-    });
+            table.push([res[i].id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quanity]);
+        }
+        console.log("------------------------------------------------------------------"); 
+        console.log(table.toString());
+    })
+
     connection.end();
 }
-
+//function to check what product has less than 5 in stock
 function lowInventory(){
+    
     var lowInvList = [];
+    
     connection.query("SELECT * FROM products", function(err, res) {
         if (err){
             console.log(err);
@@ -82,7 +93,9 @@ function lowInventory(){
     connection.end();
 };
 
+//function that updates the stock quantity for current items
 function addInventory(){
+    
     var updatedAmount;
     var  newInventory;
     
@@ -120,6 +133,7 @@ function addInventory(){
     })
 };
 
+// function to add new products to the store 
 function addProduct(){
     connection.query("SELECT * FROM products", function(err, res){
         if (err){
