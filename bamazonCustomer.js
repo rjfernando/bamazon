@@ -138,7 +138,3 @@ function restart() {
 }
 
 startOrder();
-
-
-
-    
