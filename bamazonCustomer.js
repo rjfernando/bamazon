@@ -1,5 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var Table = require("cli-table");
+
 
 //creating a connection to database
 var connection = mysql.createConnection({
@@ -17,6 +19,12 @@ connection.connect(function (err) {
     }    
 });
 
+//cli-table for product list
+var table = new Table({
+    head: ["Id", "Product", "Department", "Price", "Stock Quantity"],
+    // colWidths: [100, 200]
+});
+
 //start the order and list the items available for purchase
 function startOrder() {
     connection.query("SELECT * FROM products", function (err, res) {
@@ -24,9 +32,13 @@ function startOrder() {
             console.log(err);
         }
         for (var i = 0; i < res.length; i++) {
-            console.log(res[i].id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + "| " + res[i].stock_quanity);
-            console.log("------------------------------------------------------------");
-        } 
+            // console.log(res[i].id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + "| " + res[i].stock_quanity);
+            // console.log("------------------------------------------------------------");
+            table.push([res[i].id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quanity]);
+        }
+        console.log("------------------------------------------------------------------"); 
+        console.log(table.toString());
+
         //prompts user to select ID of the item their looking to purchase
         inquirer.prompt([{
                 name: "item",
